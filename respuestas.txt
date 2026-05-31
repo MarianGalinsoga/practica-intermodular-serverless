@@ -1,0 +1,12 @@
+Diseño de la base de datos
+La base de datos se implementará mediante DynamoDB. De acuerdo con las buenas prácticas de diseño de bases de datos de tipo clave-valor, partiremos de los casos de uso de la aplicación, que son los siguientes:
+
+1. Un usuario debe poder ver todas sus notas
+2. Un usuario debe poder realizar acciones sobre una nota específica
+
+Partiendo de estos sencillos casos de uso, responde a las siguientes preguntas:
+
+- ¿Qué esquema de claves utilizarías? Indica qué información almacenarías en la clave primaria de la tabla
+    El esquema de claves utilizaría que es el de una clave primaria compuesta (UserID como partición y NoteID como ordenación), donde permite que un usuario tenga múltiples notas, optimizando DynamoDB para recuperar todas las notas con una Query o gestionar una específica de forma directa.
+- ¿Utilizarías únicamente una clave de partición, o ves conveniente utilizar también una clave de ordenación? ¿Por qué?
+    Utilizaría tanto la de partición como la de ordenación. Porque ambas son realmente útiles, ya que me servirían para buscar mejor un usuario recordando su NoteID por ejemplo. Tal y como mencioné en la pregunta anterior.
