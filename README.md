@@ -571,7 +571,7 @@ Globals:
   Function:
     Tracing: Active
     Layers:
-      - 'arn:aws:lambda:us-east-1:615299751070:layer:AWSOpenTelemetryDistroJs:11'
+      - 'arn:aws:lambda:us-east-1:615299751070:layer:AWSOpenTelemetryDistroJs:14'
     Environment:
       Variables:
         AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-instrument
