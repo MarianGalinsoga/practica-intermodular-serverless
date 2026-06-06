@@ -5,15 +5,20 @@ import {
   QueryCommand,
   PutCommand,
   DeleteCommand,
+  GetCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 
 // TODO: importar librerías adicionales (Translate)
+import { TranslateClient, TranslateTextCommand } from "@aws-sdk/client-translate";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // Clientes para interactuar con la API de DynamoDB
 const client = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(client);
+const translateClient = new TranslateClient({});
+const s3Client = new S3Client({});
 
 // Obtener el nombre de la tabla de DynamoDB a partir de la variable de entorno
 const tableName = process.env.APP_TABLE;
@@ -37,14 +42,32 @@ async function getNotesByUser(userId) {
   return data.Items;
 }
 
+// Función para obtener una nota específica de un usuario determinado
+async function getNote(userId, noteId) {
+  // Parámetros de la petición de DynamoDB
+  // Hacemos una query indicando una condición de igualdad en la clave de partición
+  // Asumiendo que el esquema de la tabla haga referencia al userId como valor de la
+  // clave de partición
+  var params = {
+    TableName: tableName,
+    ExpressionAttributeValues: {
+      ":userId": userId, ":noteId": noteId
+    },
+    KeyConditionExpression: "userId= :userId AND noteId= :noteId"
+  };
+
+  // Petición a DynamoDB
+  const data = await ddbDocClient.send(new GetCommand(params));
+  return data.Items;
+}
+
 // Función para crear una nota para un usuario
-async function postNoteForUser(userId, noteId, noteText) {
+async function postNoteForUser(userId, noteId, noteText, translation) {
   // Parámetros de la petición de DynamoDB
   // Petición PUT indicando la clave primaria: partición + ordenación
   var params = {
     TableName: tableName,
-    Item: { userId: userId, noteId: noteId, text: noteText },
-  };
+    Item: { userId: userId, noteId: noteId, text: noteText, translation: translation } };
 
   // Petición a DynamoDB
   const data = await ddbDocClient.send(new PutCommand(params));
@@ -74,7 +97,6 @@ async function textToSpeech(text) {
 
 // Función que recibe un buffer con los datos sintetizados por Polly y los almacena en el objeto con nombre "key" en S3
 async function uploadToS3(mp3Data, key) {
-  const s3Client = new S3Client();
 
   // Obtener el nombre del bucket S3 a partir de la variable de entorno
   const bucketName = process.env.APP_S3;
@@ -88,19 +110,40 @@ async function uploadToS3(mp3Data, key) {
   await s3Client.send(command);
 
   // TODO: modificar para devolver una URL prefirmada de S3 que permita descargar
+  const downloadCommand = new GetObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+  });
+
   // el audio durante un tiempo limitado de 5 minutos
-  return;
+  const urlPrefirmada = await getSignedUrl(s3Client, downloadCommand, {
+    expiresIn: 300,
+  });
+
+  return urlPrefirmada;
 }
 
 // TODO: Añadir el resto de funciones necesarias de lógica de negocio
 
-// Función para crear una nota para un usuario
+// Función para traducir texto al inglés usando Amazon Translate
+async function translateText(text, targetLanguage = "en") {
+  const command = new TranslateTextCommand({
+    Text: text,
+    SourceLanguageCode: "auto",
+    TargetLanguageCode: targetLanguage
+  });
+
+  const response = await translateClient.send(command);
+  return response.TranslatedText;
+}
+
+// Función para eliminar una nota para un usuario
 async function deleteNote(userId, noteId) {
   // Parámetros de la petición de DynamoDB
   // Petición PUT indicando la clave primaria: partición + ordenación
   var params = {
     TableName: tableName,
-    Item: { userId: userId, noteId: noteId },
+    Key: { userId: userId, noteId: noteId },
   };
 
   // Petición a DynamoDB
@@ -109,4 +152,4 @@ async function deleteNote(userId, noteId) {
 }
 
 // TODO: Exportar las funciones creadas
-export { getNotesByUser, postNoteForUser, textToSpeech, uploadToS3, deleteNote };
+export { getNotesByUser, getNote, postNoteForUser, textToSpeech, uploadToS3, translateText, deleteNote };

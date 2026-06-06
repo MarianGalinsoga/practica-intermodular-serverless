@@ -1,0 +1,1 @@
+{"errorType":"Error","errorMessage":"Esta función solo admite peticiones GET. El método que has usado es: POST","trace":["Error: Esta función solo admite peticiones GET. El método que has usado es: POST","    at Runtime.handler (file:///var/task/src/handlers/getNotes.mjs:13:11)","    at Runtime.handleOnceNonStreaming (file:///var/runtime/index.mjs:1306:29)"]}

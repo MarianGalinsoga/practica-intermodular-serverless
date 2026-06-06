@@ -50,7 +50,7 @@ export const handler = async (event) => {
     // https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
     response = {
       // TODO: cambiar y añadir campos necesarios
-      statusCode: CODIGO_A_DEVOLVER,
+      statusCode: 201,
     };
   } catch (err) {
     console.log("Error", err);

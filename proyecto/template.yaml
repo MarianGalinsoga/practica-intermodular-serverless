@@ -5,7 +5,7 @@ Transform:
   - AWS::Serverless-2016-10-31
 
 Resources:
-  # Función Lambda para obtener las notas de un usuario
+  # Función Lambda para leer las notas de un usuario
   getNotes:
     Type: AWS::Serverless::Function
     Properties:
@@ -25,6 +25,26 @@ Resources:
           # Referencia al nombre de la tabla a través de una variable de entorno
           APP_TABLE: !Ref AppTable
 
+# Función Lambda para obtener una única nota de un usuario
+  getNote:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/getNote.handler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 5
+      Description: Función para leer una nota específica de un usuario determinado
+      Policies:
+        # Política de permisos para interactuar con la tabla de DynamoDB. Permisos CRUD.
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AppTable
+      Environment:
+        Variables:
+          # Referencia al nombre de la tabla a través de una variable de entorno
+          APP_TABLE: !Ref AppTable
+
   # Función Lambda para crear una nota para un usuario
   postNotes:
     Type: AWS::Serverless::Function
@@ -35,7 +55,67 @@ Resources:
         - x86_64
       MemorySize: 128
       Timeout: 5
-      Description: Función para crear una nota en la tabla
+      Description: Función para devolver una nota en la tabla
+      Policies:
+        # Política de permisos para interactuar con la tabla de DynamoDB. Permisos CRUD.
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AppTable
+      Environment:
+        Variables:
+          # Referencia al nombre de la tabla a través de una variable de entorno
+          APP_TABLE: !Ref AppTable
+
+  # Función Lambda para procesar las notas para un usuario
+  processNote:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/processNote.handler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 5
+      Description: Función para procesar una nota en la tabla
+      Policies:
+        # Política de permisos para interactuar con la tabla de DynamoDB. Permisos CRUD.
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AppTable
+      Environment:
+        Variables:
+          # Referencia al nombre de la tabla a través de una variable de entorno
+          APP_TABLE: !Ref AppTable
+
+  # Función Lambda para poner las notas para un usuario
+  putNote:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/putNote.handler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 5
+      Description: Función para editar una nota en la tabla
+      Policies:
+        # Política de permisos para interactuar con la tabla de DynamoDB. Permisos CRUD.
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AppTable
+      Environment:
+        Variables:
+          # Referencia al nombre de la tabla a través de una variable de entorno
+          APP_TABLE: !Ref AppTable
+
+  # Función Lambda para borrar una nota para un usuario
+  deleteNote:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/deleteNote.handler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 5
+      Description: Función para borrar una nota en la tabla
       Policies:
         # Política de permisos para interactuar con la tabla de DynamoDB. Permisos CRUD.
         - DynamoDBCrudPolicy:
@@ -71,5 +151,13 @@ Resources:
 Outputs:
   getNotesFunctionName:
     Value: !Ref getNotes
+  getNoteFunctionName:
+    Value: !Ref getNote
   postNotesFunctionName:
     Value: !Ref postNotes
+  postNotesFunctionName:
+    Value: !Ref processNote
+  postNotesFunctionName:
+    Value: !Ref putNote
+  deleteNoteFunctionName:
+    Value: !Ref deleteNote

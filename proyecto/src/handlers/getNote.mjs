@@ -8,10 +8,10 @@ import * as libreria from "../auxFunctions.mjs";
 
 // Handler
 export const handler = async (event) => {
-  // Si no se recibe el método GET, se genera un error
-  if (event.httpMethod !== "DELETE") {
+  // TODO: reemplazar METODO por método apropiado (PUT, POST, GET,...)
+  if (event.httpMethod !== "GET") {
     throw new Error(
-      `Esta función solo admite peticiones DELETE. El método que has usado es: ${event.httpMethod}`,
+      `Esta función solo admite peticiones de tipo GET. El método que has usado es: ${event.httpMethod}`,
     );
   }
 
@@ -38,27 +38,24 @@ export const handler = async (event) => {
     username = "testuser";
   }
 
-    var noteData = JSON.parse(event.body); // Convertimos de JSON a objeto javascript
-    var noteId = noteData.noteId;
-    // TODO: Obtener campos del cuerpo de la petición en caso de ser necesario
+  var noteData = JSON.parse(event.body); // Convertimos de JSON a objeto javascript
+  // TODO: Obtener campos del cuerpo de la petición en caso de ser necesario
 
   var response;
 
   try {
     // TODO: Llamar a la función de la librería encargada de realizar el procesamiento o los procesamientos necesarios
-    
-    var data = await libreria.deleteNote(userId, noteId)
-    
+
     // Resultado que devuelve la función, de acuerdo con el formato descrito en la documentación:
     // https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
     response = {
       // TODO: cambiar y añadir campos necesarios
-      statusCode: 204,
+      statusCode: 200,
     };
   } catch (err) {
     console.log("Error", err);
     // Si la consulta genera error, devolvemos una descripción del error y código 400, con el mismo formato
-    var errorMessage = { message: "Ha habido un problema al borrar la nota" };
+    var errorMessage = { message: "Ha habido un problema" };
     response = {
       statusCode: 400,
       body: JSON.stringify(errorMessage),
