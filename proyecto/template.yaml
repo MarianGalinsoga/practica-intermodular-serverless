@@ -124,7 +124,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref NotesApi  
-            Path: /notes/process
+            Path: /notes/{noteId}/process
             Method: post
 
   # Función Lambda para poner las notas para un usuario
@@ -203,7 +203,6 @@ Resources:
         - AttributeName: noteId
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
-
 
 # Salidas para mostrar el nombre de las funciones que se han creado
 Outputs:
