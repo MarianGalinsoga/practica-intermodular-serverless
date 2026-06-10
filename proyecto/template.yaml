@@ -5,6 +5,16 @@ Transform:
   - AWS::Serverless-2016-10-31
 
 Resources:
+  # API Gateway explícito para CORS
+  NotesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key'"
+        AllowOrigin: "'*'"
+
   # Función Lambda para leer las notas de un usuario
   getNotes:
     Type: AWS::Serverless::Function
@@ -24,6 +34,14 @@ Resources:
         Variables:
           # Referencia al nombre de la tabla a través de una variable de entorno
           APP_TABLE: !Ref AppTable
+      # Cambios añadidos
+      Events:
+        GetNotesApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi  
+            Path: /notes
+            Method: get
 
 # Función Lambda para obtener una única nota de un usuario
   getNote:
@@ -44,6 +62,14 @@ Resources:
         Variables:
           # Referencia al nombre de la tabla a través de una variable de entorno
           APP_TABLE: !Ref AppTable
+      # Cambios añadidos
+      Events:
+        GetNoteApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi  
+            Path: /notes/{noteId}
+            Method: get
 
   # Función Lambda para crear una nota para un usuario
   postNotes:
@@ -64,6 +90,14 @@ Resources:
         Variables:
           # Referencia al nombre de la tabla a través de una variable de entorno
           APP_TABLE: !Ref AppTable
+      # Cambios añadidos
+      Events:
+        postNotesApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi  
+            Path: /notes
+            Method: post
 
   # Función Lambda para procesar las notas para un usuario
   processNote:
@@ -84,6 +118,14 @@ Resources:
         Variables:
           # Referencia al nombre de la tabla a través de una variable de entorno
           APP_TABLE: !Ref AppTable
+      # Cambios añadidos
+      Events:
+        processNoteApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi  
+            Path: /notes/process
+            Method: post
 
   # Función Lambda para poner las notas para un usuario
   putNote:
@@ -104,6 +146,14 @@ Resources:
         Variables:
           # Referencia al nombre de la tabla a través de una variable de entorno
           APP_TABLE: !Ref AppTable
+      # Cambios añadidos
+      Events:
+        putNoteApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi  
+            Path: /notes
+            Method: put
 
   # Función Lambda para borrar una nota para un usuario
   deleteNote:
@@ -124,6 +174,14 @@ Resources:
         Variables:
           # Referencia al nombre de la tabla a través de una variable de entorno
           APP_TABLE: !Ref AppTable
+      # Cambios añadidos
+      Events:
+        deleteNoteApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi  
+            Path: /notes/{noteId}
+            Method: delete
 
   # Tabla DynamoDB
   # Observa que no vamos a utilizar el recurso AWS::Serverless::SimpleTable, porque
@@ -161,3 +219,7 @@ Outputs:
     Value: !Ref putNote
   deleteNoteFunctionName:
     Value: !Ref deleteNote
+# Añade también un Output para la dirección del API Gateway que genere (opcional, pero buena práctica).
+  NotesApiUrl:
+    Description: "URL de la API Gateway"
+    Value: !Sub "https://${NotesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/notes"

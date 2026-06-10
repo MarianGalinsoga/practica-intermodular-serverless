@@ -6,6 +6,13 @@ import * as libreria from "../auxFunctions.mjs";
 // Por ello, el evento tendrá el formato descrito en la documentación:
 // https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
 
+// Headers CORS
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key",
+  "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
+};
+
 // Handler
 export const handler = async (event) => {
   // TODO: reemplazar METODO por método apropiado (PUT, POST, GET,...)
@@ -30,7 +37,7 @@ export const handler = async (event) => {
   } catch (error) {
     userId = "testuser";
   }
-  
+
   var noteData = JSON.parse(event.body); // Convertimos de JSON a objeto javascript
   // TODO: Obtener campos del cuerpo de la petición en caso de ser necesario
   const noteId = noteData.noteId;
@@ -40,6 +47,7 @@ export const handler = async (event) => {
   if (!noteId) {
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: JSON.stringify({ message: "Falta el parámetro requerido: noteId" }),
     };
   }
@@ -51,6 +59,7 @@ export const handler = async (event) => {
     if (!notes || notes.length === 0) {
       return {
         statusCode: 404,
+        headers: corsHeaders,
         body: JSON.stringify({ message: "Nota no encontrada para este usuario." }),
       };
     }
@@ -62,6 +71,7 @@ export const handler = async (event) => {
     if (!noteText) {
       return {
         statusCode: 400,
+        headers: corsHeaders,
         body: JSON.stringify({ message: "La nota encontrada no contiene texto para procesar." }),
       };
     }
@@ -109,6 +119,7 @@ export const handler = async (event) => {
     
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: JSON.stringify({ 
         message: "Ha ocurrido un error interno al procesar la nota.",
         error: err.message 
