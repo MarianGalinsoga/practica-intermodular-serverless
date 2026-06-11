@@ -223,9 +223,9 @@ Outputs:
     Value: !Ref getNote
   postNotesFunctionName:
     Value: !Ref postNotes
-  postNotesFunctionName:
+  processNoteFunctionName:
     Value: !Ref processNote
-  postNotesFunctionName:
+  putNoteFunctionName:
     Value: !Ref putNote
   deleteNoteFunctionName:
     Value: !Ref deleteNote
