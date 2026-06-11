@@ -38,9 +38,8 @@ export const handler = async (event) => {
     userId = "testuser";
   }
 
-  var noteData = JSON.parse(event.body); // Convertimos de JSON a objeto javascript
   // TODO: Obtener campos del cuerpo de la petición en caso de ser necesario
-  const noteId = noteData.noteId;
+  const noteId = event.pathParameters.noteId
 
   var response;
 

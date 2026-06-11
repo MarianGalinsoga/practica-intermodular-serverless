@@ -152,7 +152,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref NotesApi  
-            Path: /notes
+            Path: /notes/{noteId}
             Method: put
 
   # Función Lambda para borrar una nota para un usuario
