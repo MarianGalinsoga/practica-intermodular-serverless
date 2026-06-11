@@ -114,6 +114,17 @@ Resources:
         # Política de permisos para interactuar con la tabla de DynamoDB. Permisos CRUD.
         - DynamoDBCrudPolicy:
             TableName: !Ref AppTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - polly:SynthesizeSpeech
+              Resource: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:PutObjectAcl
+              Resource: "*"
       Environment:
         Variables:
           # Referencia al nombre de la tabla a través de una variable de entorno
