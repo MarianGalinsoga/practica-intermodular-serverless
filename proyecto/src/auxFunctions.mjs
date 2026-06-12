@@ -151,5 +151,40 @@ async function deleteNote(userId, noteId) {
   return data;
 }
 
+// Función para procesar la nota: Traducir, pasar a audio y subir a S3
+async function processNote(userId, noteId) {
+  // 1. Recuperamos la nota original de DynamoDB
+  const noteArray = await getNote(userId, noteId);
+  if (!noteArray || noteArray.length === 0) {
+    throw new Error("La nota no existe");
+  }
+  
+  // Dependiendo de cómo devuelva DynamoDB el objeto con GetCommand
+  const note = noteArray[0] || noteArray; 
+  const originalText = note.text;
+
+  // 2. Traducimos el texto (por ejemplo, al inglés "en")
+  const translatedText = await translateText(originalText, "en");
+
+  // 3. Convertimos el texto traducido a audio con Polly
+  const audioBuffer = await textToSpeech(translatedText);
+
+  // 4. Subimos el audio a S3 y obtenemos la URL prefirmada
+  const s3Key = `${userId}/${noteId}.mp3`;
+  const audioUrl = await uploadToS3(audioBuffer, s3Key);
+
+  // 5. Actualizamos la nota en DynamoDB incluyendo la traducción y la URL del audio
+  await postNoteForUser(userId, noteId, originalText, translatedText);
+  
+  // Puedes añadir el campo de la URL del audio modificando los parámetros de postNoteForUser 
+  // o creando un comando UpdateCommand específico si fuera necesario.
+
+  return {
+    message: "Nota procesada con éxito",
+    translation: translatedText,
+    audioUrl: audioUrl
+  };
+}
+
 // TODO: Exportar las funciones creadas
-export { getNotesByUser, getNote, postNoteForUser, textToSpeech, uploadToS3, translateText, deleteNote };
+export { getNotesByUser, getNote, postNoteForUser, textToSpeech, uploadToS3, translateText, deleteNote, processNote };
